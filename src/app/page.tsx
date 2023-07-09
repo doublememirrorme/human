@@ -1,6 +1,6 @@
 "use client";
 
-import styles from "./page.module.css";
+import styles from "./page.module.sass";
 import Navigation from "@/components/navigation";
 import ArticleList from "@/components/article-list";
 import { useGlobalContext } from "@/context";
@@ -9,6 +9,9 @@ import React, { useState } from "react";
 import Article, { IArticle } from "@/components/article";
 import SearchInput from "@/components/search-input";
 import Fuse from "fuse.js";
+import { confirmAlert } from "react-confirm-alert";
+import debounce from "lodash.debounce";
+import "react-confirm-alert/src/react-confirm-alert.css";
 
 const filterArticlesByCategory = (
   articles: IArticle[],
@@ -24,8 +27,8 @@ const filterArticlesByCategory = (
 const Home: React.FC = () => {
   const searchParams = useSearchParams();
   const category = searchParams.get("filter");
-  const [searchTerm, setSearchTerm] = useState<string | null>(
-    searchParams.get("q"),
+  const [searchTerm, setSearchTerm] = useState<string>(
+    searchParams.get("q") || "",
   );
   const { articles, setActiveCategory } = useGlobalContext();
   const [filteredArticles, setFilteredArticles] = useState<IArticle[]>(
@@ -33,17 +36,18 @@ const Home: React.FC = () => {
   );
 
   React.useEffect(() => {
-    const filteredArticles = filterArticlesByCategory(articles, category);
+    if (!searchTerm || searchTerm.length < 3) {
+      setFilteredArticles(filterArticlesByCategory(articles, category));
+    } else {
+      const filteredArticles = new Fuse(
+        filterArticlesByCategory(articles, category),
+        { keys: ["title", "excerpt"] },
+      );
 
-    setFilteredArticles(
-      searchTerm
-        ? filteredArticles.filter(
-            (article: IArticle) =>
-              article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              article.excerpt.toLowerCase().includes(searchTerm.toLowerCase()),
-          )
-        : filteredArticles,
-    );
+      setFilteredArticles(
+        filteredArticles.search(searchTerm as string).map(({ item }) => item),
+      );
+    }
   }, [articles, category, searchTerm]);
 
   React.useEffect(() => {
@@ -52,16 +56,40 @@ const Home: React.FC = () => {
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
-    const url = new URL(window.location.href);
-    url.searchParams.set("q", value);
     setSearchTerm(value);
-    window.history.pushState({}, "", url.toString());
+
+    debounce(() => {
+      const url = new URL(window.location.href);
+      url.searchParams.set("q", value);
+      window.history.pushState({}, "", url.toString());
+    }, 750)();
   };
 
   const handleDelete = (slug: string) => {
-    setFilteredArticles((articles) =>
-      articles.filter((article) => article.slug !== slug),
-    );
+    confirmAlert({
+      customUI: ({ onClose }) => (
+        <div className="custom-ui">
+          <h1>Delete article</h1>
+          <p className={styles.delete__paragraph}>
+            Are you sure you want to delete this article?
+          </p>
+          <button
+            className={styles.button__delete}
+            onClick={() => {
+              setFilteredArticles((articles) =>
+                articles.filter((article) => article.slug !== slug),
+              );
+              onClose();
+            }}
+          >
+            Yes, delete it!
+          </button>
+          <button onClick={onClose} className={styles.button}>
+            No, take me back!
+          </button>
+        </div>
+      ),
+    });
   };
 
   return (

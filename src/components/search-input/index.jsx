@@ -1,3 +1,5 @@
+"use client";
+
 import styles from "./search-input.module.sass";
 
 const SearchInput = ({ value, onChange }) => (

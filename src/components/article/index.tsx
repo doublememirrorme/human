@@ -35,11 +35,20 @@ const Article = ({
   excerpt,
   post_image,
   slug,
-}: Pick<IArticle, "title" | "excerpt" | "post_image" | "slug">) => {
+  onDelete: handleDelete,
+}: Pick<IArticle, "title" | "excerpt" | "post_image" | "slug"> & {
+  onDelete: (slug: string) => void;
+}) => {
   const Link = LinkTo(slug);
 
   return (
     <article className={styles.article}>
+      <button
+        className={styles.article__delete}
+        onClick={() => handleDelete(slug)}
+      >
+        X
+      </button>
       <Link className={styles.image__link}>
         <Image
           src={`https://react-challenge.human.hr/${post_image}`}

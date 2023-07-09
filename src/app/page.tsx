@@ -50,10 +50,14 @@ const Home: React.FC = () => {
     const { value } = event.target;
     const url = new URL(window.location.href);
     url.searchParams.set("q", value);
-
     setSearchTerm(value);
-
     window.history.pushState({}, "", url.toString());
+  };
+
+  const handleDelete = (slug: string) => {
+    setFilteredArticles((articles) =>
+      articles.filter((article) => article.slug !== slug),
+    );
   };
 
   return (
@@ -62,7 +66,7 @@ const Home: React.FC = () => {
       <SearchInput value={searchTerm} onChange={handleSearch} />
       <ArticleList>
         {filteredArticles.map((article: IArticle) => (
-          <Article {...article} key={article.slug} />
+          <Article {...article} onDelete={handleDelete} key={article.slug} />
         ))}
       </ArticleList>
     </main>

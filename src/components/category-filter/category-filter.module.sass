@@ -1,0 +1,27 @@
+.button__toggle
+  all: unset
+
+  &:hover
+    text-decoration: underline
+    cursor: pointer
+
+.filter
+  position: absolute
+  top: 2rem
+  right: 0
+  width: 100%
+  z-index: 1
+  background: #eee
+  border: 1px solid #333
+  padding: 0.5rem
+  display: flex
+  flex-direction: column
+
+  &[hidden]
+    display: none
+  
+  &__wrapper
+    position: relative
+
+.checkbox
+  margin-right: 0.5rem

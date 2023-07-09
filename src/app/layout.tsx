@@ -3,7 +3,6 @@ import "./globals.css";
 import { get as getArticles } from "@/api/articles";
 import { Inter } from "next/font/google";
 import { getCategoriesFromArticles } from "@/utils";
-import styles from "./layout.module.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,7 +21,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={inter.className} style={{ background: '#eee' }}>
         <GlobalContextProvider value={{ articles, categories }}>
           {children}
         </GlobalContextProvider>

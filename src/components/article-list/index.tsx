@@ -1,8 +1,14 @@
 "use client";
 
-import Article from "../article";
-import { CSSProperties, ComponentType, ReactElement, useState } from "react";
-import React from "react";
+import Article from "@/components/article";
+import CategoryFilter from "@/components/category-filter";
+import React, {
+  CSSProperties,
+  ComponentType,
+  ReactElement,
+  useRef,
+  useState,
+} from "react";
 import { VariableSizeList as List } from "react-window";
 import styles from "./article-list.module.sass";
 
@@ -15,8 +21,8 @@ interface IArticleList {
 }
 
 const ArticleList: React.FC<IArticleList> = ({ children = [] }) => {
-  const [isDesktop, setIsDesktop] = useState<boolean>(window.innerWidth > 768);
-  const [isLowRes, setIsLowRes] = useState<boolean>(window.innerWidth < 500);
+  const [isDesktop, setIsDesktop] = useState<boolean>(window?.innerWidth > 768);
+  const [isLowRes, setIsLowRes] = useState<boolean>(window?.innerWidth < 500);
 
   React.useEffect(() => {
     const handleResize = () => {
@@ -39,14 +45,19 @@ const ArticleList: React.FC<IArticleList> = ({ children = [] }) => {
 
   return (
     <div className={styles.list__wrapper}>
-      <h3 className={styles.list__results}>
-        Result: {children.length} articles
-      </h3>
+      <header className={styles.list__header}>
+        <h3 className={styles.list__results}>
+          Result: {children.length} articles
+        </h3>
+
+        <CategoryFilter />
+      </header>
+
       <List
         className={styles.list}
         height={window.innerHeight - (isDesktop ? 200 : 330)}
         itemCount={children.length}
-        itemSize={() => (isDesktop ? 250 : isLowRes ? 700 : 600)}
+        itemSize={() => (isDesktop ? 260 : isLowRes ? 700 : 600)}
         width="100%"
       >
         {RenderRow}

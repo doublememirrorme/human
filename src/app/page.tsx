@@ -8,6 +8,18 @@ import { useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 import Article, { IArticle } from "@/components/article";
 import SearchInput from "@/components/search-input";
+import Fuse from "fuse.js";
+
+const filterArticlesByCategory = (
+  articles: IArticle[],
+  category: string | null,
+) => {
+  if (!category) return articles;
+
+  return articles.filter(
+    (article: IArticle) => article.post_category_id === category,
+  );
+};
 
 const Home: React.FC = () => {
   const searchParams = useSearchParams();
@@ -17,19 +29,11 @@ const Home: React.FC = () => {
   );
   const { articles, setActiveCategory } = useGlobalContext();
   const [filteredArticles, setFilteredArticles] = useState<IArticle[]>(
-    !category
-      ? articles
-      : articles.filter(
-          (article: IArticle) => article.post_category_id === category,
-        ),
+    filterArticlesByCategory(articles, category),
   );
 
   React.useEffect(() => {
-    const filteredArticles = !category
-      ? articles
-      : articles.filter(
-          (article: IArticle) => article.post_category_id === category,
-        );
+    const filteredArticles = filterArticlesByCategory(articles, category);
 
     setFilteredArticles(
       searchTerm
